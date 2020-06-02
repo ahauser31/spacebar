@@ -1,6 +1,6 @@
 FRAMEWORK_PATH = -F/System/Library/PrivateFrameworks
 FRAMEWORK      = -framework Carbon -framework Cocoa -framework CoreServices -framework SkyLight -framework ScriptingBridge -framework IOKit
-BUILD_FLAGS    = -std=c99 -Wall -DDEBUG -g -O0 -fvisibility=hidden -mmacosx-version-min=10.13
+BUILD_FLAGS    = -std=c99 -Wall -DNDEBUG -O2 -fvisibility=hidden -mmacosx-version-min=10.13
 BUILD_PATH     = ./bin
 DOC_PATH       = ./doc
 SCRIPT_PATH    = ./scripts
@@ -14,8 +14,13 @@ BINS           = $(BUILD_PATH)/spacebar
 
 all: clean $(BINS)
 
-install: BUILD_FLAGS=-std=c99 -Wall -DNDEBUG -O2 -fvisibility=hidden -mmacosx-version-min=10.13
-install: clean $(BINS)
+#install: BUILD_FLAGS=-std=c99 -Wall -DNDEBUG -O2 -fvisibility=hidden -mmacosx-version-min=10.13
+#install: clean $(BINS)
+
+install: sign
+	cp $(BUILD_PATH)/spacebar /usr/local/bin/spacebar
+	cp $(SCRIPT_PATH)/spacebar.plist ~/Library/LaunchAgents/spacebar.plist
+	launchctl bootstrap gui/501 ~/Library/LaunchAgents/spacebar.plist
 
 stats: BUILD_FLAGS=-std=c99 -Wall -DSTATS -DNDEBUG -O2 -fvisibility=hidden -mmacosx-version-min=10.13
 stats: clean $(BINS)
@@ -36,7 +41,7 @@ archive: man install sign icon
 	rm -rf $(ARCH_PATH)
 
 sign:
-	codesign -fs "spacebar-cert" $(BUILD_PATH)/spacebar
+	codesign -fs "spacebar" $(BUILD_PATH)/spacebar
 
 clean:
 	rm -rf $(BUILD_PATH)
